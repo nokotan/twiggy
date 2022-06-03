@@ -39,7 +39,7 @@ impl<'a> Parse<'a> for wasmparser::BinaryReader<'a> {
         let mut total_readbytes = 0;
         let mut original_pos = self.clone();
 
-        while !self.eof() {
+        loop {
             let (payload, mut size) = match parser.parse(&buf, self.eof())? {
                 wasmparser::Chunk::NeedMoreData(hint) => {
                     total_readbytes += hint;
@@ -81,6 +81,10 @@ impl<'a> Parse<'a> for wasmparser::BinaryReader<'a> {
             };
             sizes.insert(idx, size as u32);
             idx += 1;
+
+            if self.eof() {
+                break;
+            }
 
             original_pos = self.clone();
             total_readbytes = 0;
@@ -189,7 +193,7 @@ impl<'a> Parse<'a> for wasmparser::BinaryReader<'a> {
         let mut total_readbytes = 0;
         let mut original_pos = self.clone();
 
-        while !self.eof() {
+        loop {
             let (payload, size) = match parser.parse(&buf, self.eof())? {
                 wasmparser::Chunk::NeedMoreData(hint) => {
                     total_readbytes += hint;
@@ -229,6 +233,11 @@ impl<'a> Parse<'a> for wasmparser::BinaryReader<'a> {
                 _ => sections.push(indexed_section),
             };
             idx += 1;
+
+            if self.eof() {
+                break;
+            }
+
             original_pos = self.clone();
             total_readbytes = 0;
             buf = self.read_bytes(0)?;
